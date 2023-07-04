@@ -26,8 +26,13 @@ const db = mongoClient.db();
 const participantSchema = joi.object({
     name: joi.string().required(),
     email: joi.string().email().required(),
-    password: joi.string().required(),
-    passwordagain: joi.string().required(),
+    password: joi.string().required().min(3),
+    passwordagain: joi.string().required().min(3),
+});
+
+const userSchema = joi.object({
+    email: joi.string().email().required(),
+    password: joi.string().required().min(3),
 });
 
 
@@ -76,14 +81,38 @@ app.get("/participants", async (req, res) => {
   });
 
 
-  //Login:
-  app.post("/user", async (req, res) => {
-    try {
-  
-    } catch (err) {
-      return res.status(500).send(err.message);
+//Login:
+app.post("/user", async (req, res) => {
+    const { email, password } = req.body;
+
+    const postUser = { email: email, password: password };
+
+    const validation = userSchema.validate(postUser, { abortEarly: false });
+
+    if (validation.error) {
+        const errors = validation.error.details.map((detail) => detail.message);
+        return res.status(422).send(errors);
     }
-  });
+
+    try {
+        const user = await db.collection("participants").findOne({ email });
+
+        if (!user) {
+            return res.status(404).send("Este email não existe, crie uma conta");
+        }
+
+        if (user.password !== password) {
+            return res.status(401).send("Senha incorreta");
+        }
+
+        // Aqui você pode retornar informações adicionais do usuário, se necessário
+        return res.send(user);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+});
+
 
 //PORT:
 const PORT = 5000;
