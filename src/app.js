@@ -49,10 +49,6 @@ app.post("/participants", async (req, res) => {
       return res.status(422).send(errors);
     }
 
-    if(password !== passwordagain) {
-        return res.status(422).send("As senhas estão diferentes")
-    }
-  
     try {
     const participantEmailExistsInParticipants = await db.collection("participants").findOne({ email });
   
