@@ -27,7 +27,6 @@ const participantSchema = joi.object({
     name: joi.string().required(),
     email: joi.string().email().required(),
     password: joi.string().required().min(3),
-    passwordagain: joi.string().required().min(3),
 });
 
 const userSchema = joi.object({
@@ -38,9 +37,9 @@ const userSchema = joi.object({
 
 //Cadastro:
 app.post("/participants", async (req, res) => {
-    const { name, email, password, passwordagain} = req.body;
+    const { name, email, password } = req.body;
   
-    const postParticipant = { name: name, email: email, password: password, passwordagain: passwordagain }
+    const postParticipant = { name: name, email: email, password: password }
   
     const validation = participantSchema.validate(postParticipant, { abortEarly: false });
   
