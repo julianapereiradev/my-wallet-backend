@@ -5,6 +5,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import joi from 'joi';
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
+import dayjs from 'dayjs';
 
 //Settings:
 const app = express();
@@ -119,6 +120,31 @@ app.post("/user", async (req, res) => {
         return res.status(500).send(err.message);
     }
 });
+
+//Operations:
+app.get("/operations", async (req, res) => {
+  try {
+
+const operations = await db.collection("operations").find().toArray();
+res.status(200).send(operations)
+
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+})
+
+app.post("/operations", async (req, res) => {
+  const {value, description, type} = req.body;
+
+  try {
+    
+    await db.collection("operations").insertOne({value: value, description: description, type: type, date: dayjs().format('DD/MM')})
+    res.status(201).send("Operação criada")
+
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+})
 
 
 //PORT:
