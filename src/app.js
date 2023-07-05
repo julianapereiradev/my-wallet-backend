@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
-import joi from 'joi';
+import joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 //Settings:
 const app = express();
@@ -24,106 +24,89 @@ try {
 }
 const db = mongoClient.db();
 
-
 //Joi Schemas:
 const participantSchema = joi.object({
-    name: joi.string().required(),
-    email: joi.string().email().required(),
-    password: joi.string().required().min(3),
+  name: joi.string().required(),
+  email: joi.string().email().required(),
+  password: joi.string().required().min(3),
 });
 
 const userSchema = joi.object({
-    email: joi.string().email().required(),
-    password: joi.string().required().min(3),
+  email: joi.string().email().required(),
+  password: joi.string().required().min(3),
 });
 
 const operationSchema = joi.object({
   value: joi.number().required(),
   description: joi.string().required(),
-  type: joi.string().valid("entry", "exit").required()
+  type: joi.string().valid("entry", "exit").required(),
 });
 
 //Cadastro:
 app.post("/participants", async (req, res) => {
-    const { name, email, password } = req.body;
-  
-    const postParticipant = { name: name, email: email, password: password }
-  
-    const validation = participantSchema.validate(postParticipant, { abortEarly: false });
-  
-    if (validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return res.status(422).send(errors);
-    }
+  const { name, email, password } = req.body;
 
-    try {
-    const participantEmailExistsInParticipants = await db.collection("participants").findOne({ email });
-  
-    if(participantEmailExistsInParticipants) {
-      return res.status(409).send("Este email já existe no banco");
-    }
-    
-    const hash = bcrypt.hashSync(password, 10);
+  const postParticipant = { name: name, email: email, password: password };
 
-      const newParticipant = { name: name, email: email, password: hash };
-      
-      await db.collection("participants").insertOne(newParticipant);
-      res.status(201).send("Participante cadastrado")
-  
-  } catch(err) {
-      return res.status(500).send(err.message)
-  }
+  const validation = participantSchema.validate(postParticipant, {
+    abortEarly: false,
   });
 
-// app.get("/participants", async (req, res) => {
-//     try {
-//       const data = await db.collection("participants").find().toArray();
-//       return res.send(data);
-  
-//     } catch (err) {
-//       return res.status(500).send(err.message);
-//     }
-//   });
+  if (validation.error) {
+    const errors = validation.error.details.map((detail) => detail.message);
+    return res.status(422).send(errors);
+  }
 
+  try {
+    const participantEmailExistsInParticipants = await db
+      .collection("participants")
+      .findOne({ email });
+
+    if (participantEmailExistsInParticipants) {
+      return res.status(409).send("Este email já existe no banco");
+    }
+
+    const hash = bcrypt.hashSync(password, 10);
+
+    const newParticipant = { name: name, email: email, password: hash };
+
+    await db.collection("participants").insertOne(newParticipant);
+    res.status(201).send("Participante cadastrado");
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+});
 
 //Login:
 app.post("/user", async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const postUser = { email: email, password: password };
+  const postUser = { email: email, password: password };
 
-    const validation = userSchema.validate(postUser, { abortEarly: false });
+  const validation = userSchema.validate(postUser, { abortEarly: false });
 
-    if (validation.error) {
-        const errors = validation.error.details.map((detail) => detail.message);
-        return res.status(422).send(errors);
+  if (validation.error) {
+    const errors = validation.error.details.map((detail) => detail.message);
+    return res.status(422).send(errors);
+  }
+
+  try {
+    const user = await db.collection("participants").findOne({ email });
+
+    if (!user) {
+      return res.status(404).send("Este email não existe, crie uma conta");
     }
 
-    try {
-        const user = await db.collection("participants").findOne({ email });
-
-        if (!user) {
-            return res.status(404).send("Este email não existe, crie uma conta");
-        }
-
-        if (bcrypt.compareSync(password, user.password)) {
-          const token = uuid()
-          await db.collection("sessions").insertOne({idUser: user._id, token})
-        res.status(200).send(token)
-        } else {
-          res.status(401).send("Senha incorreta!")
-        }
-
-        // if (user.password !== password) {
-        //     return res.status(401).send("Senha incorreta");
-        // }
-
-        // Aqui você pode retornar informações adicionais do usuário, se necessário
-        // return res.send(user);
-
-    } catch (err) {
-        return res.status(500).send(err.message);
+    if (bcrypt.compareSync(password, user.password)) {
+      const token = uuid();
+      await db.collection("sessions").insertOne({ idUser: user._id, token });
+      res.status(200).send(token);
+    } else {
+      res.status(401).send("Senha incorreta!");
     }
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
 });
 
 //Operations:
@@ -133,31 +116,32 @@ app.get("/operations", async (req, res) => {
   const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
   if (!token) return res.status(401).send("nao tem autorizacao para acessar");
 
-
   try {
-    const sessao = await db.collection('sessions').findOne({token});
-    if(!sessao) return res.status(401).send("Nao encontrou token no banco de sessoes");
+    const sessao = await db.collection("sessions").findOne({ token });
+    if (!sessao)
+      return res.status(401).send("Nao encontrou token no banco de sessoes");
 
-const operations = await db.collection("operations").find().toArray();
-res.status(200).send(operations)
-
+    const operations = await db.collection("operations").find({idUser: sessao.idUser}).toArray();
+    res.status(200).send(operations);
   } catch (err) {
     return res.status(500).send(err.message);
   }
-})
+});
 
 app.post("/operations", async (req, res) => {
-  const {value, description, type} = req.body;
+  const { value, description, type } = req.body;
 
   const { authorization } = req.headers;
 
   const postOperation = { value: value, description: description, type: type };
 
-  const validation = operationSchema.validate(postOperation, { abortEarly: false });
+  const validation = operationSchema.validate(postOperation, {
+    abortEarly: false,
+  });
 
   if (validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return res.status(422).send(errors);
+    const errors = validation.error.details.map((detail) => detail.message);
+    return res.status(422).send(errors);
   }
 
   const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
@@ -165,19 +149,23 @@ app.post("/operations", async (req, res) => {
   if (!token) return res.status(401).send("nao tem autorizacao para acessar");
 
   try {
-
     const sessao = await db.collection("sessions").findOne({ token });
     if (!sessao) return res.status(401).send("Esse token n existe");
-    
 
-    await db.collection("operations").insertOne({value: value, description: description, type: type, date: dayjs().format('DD/MM'), idUser: sessao.idUser})
-    res.status(201).send("Operação criada")
-
+    await db
+      .collection("operations")
+      .insertOne({
+        value: value,
+        description: description,
+        type: type,
+        date: dayjs().format("DD/MM"),
+        idUser: sessao.idUser,
+      });
+    res.status(201).send("Operação criada");
   } catch (err) {
     return res.status(500).send(err.message);
   }
-})
-
+});
 
 //PORT:
 const PORT = 5000;
