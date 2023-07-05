@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
-import joi from 'joi'
+import joi from 'joi';
+import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 //Settings:
 const app = express();
@@ -55,7 +57,9 @@ app.post("/participants", async (req, res) => {
       return res.status(409).send("Este email já existe no banco");
     }
     
-      const newParticipant = { name: name, email: email, password: password };
+    const hash = bcrypt.hashSync(password, 10);
+
+      const newParticipant = { name: name, email: email, password: hash };
       
       await db.collection("participants").insertOne(newParticipant);
       res.sendStatus(201)
@@ -96,12 +100,20 @@ app.post("/user", async (req, res) => {
             return res.status(404).send("Este email não existe, crie uma conta");
         }
 
-        if (user.password !== password) {
-            return res.status(401).send("Senha incorreta");
+        if (bcrypt.compareSync(password, user.password)) {
+          const token = uuid()
+          await db.collection("sessions").insertOne({idUser: user._id, token})
+        res.status(200).send(token)
+        } else {
+          res.status(401).send("Senha incorreta!")
         }
 
+        // if (user.password !== password) {
+        //     return res.status(401).send("Senha incorreta");
+        // }
+
         // Aqui você pode retornar informações adicionais do usuário, se necessário
-        return res.send(user);
+        // return res.send(user);
 
     } catch (err) {
         return res.status(500).send(err.message);
