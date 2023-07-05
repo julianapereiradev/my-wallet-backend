@@ -37,6 +37,11 @@ const userSchema = joi.object({
     password: joi.string().required().min(3),
 });
 
+const operationSchema = joi.object({
+  value: joi.number().required(),
+  description: joi.string().required(),
+  type: joi.string().valid("entry", "exit").required()
+});
 
 //Cadastro:
 app.post("/participants", async (req, res) => {
@@ -63,22 +68,22 @@ app.post("/participants", async (req, res) => {
       const newParticipant = { name: name, email: email, password: hash };
       
       await db.collection("participants").insertOne(newParticipant);
-      res.sendStatus(201)
+      res.status(201).send("Participante cadastrado")
   
   } catch(err) {
       return res.status(500).send(err.message)
   }
   });
 
-app.get("/participants", async (req, res) => {
-    try {
-      const data = await db.collection("participants").find().toArray();
-      return res.send(data);
+// app.get("/participants", async (req, res) => {
+//     try {
+//       const data = await db.collection("participants").find().toArray();
+//       return res.send(data);
   
-    } catch (err) {
-      return res.status(500).send(err.message);
-    }
-  });
+//     } catch (err) {
+//       return res.status(500).send(err.message);
+//     }
+//   });
 
 
 //Login:
@@ -123,7 +128,15 @@ app.post("/user", async (req, res) => {
 
 //Operations:
 app.get("/operations", async (req, res) => {
+  const { authorization } = req.headers;
+
+  const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
+  if (!token) return res.status(401).send("nao tem autorizacao para acessar");
+
+
   try {
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao) return res.status(401).send("Nao encontrou token no banco de sessoes");
 
 const operations = await db.collection("operations").find().toArray();
 res.status(200).send(operations)
@@ -136,9 +149,28 @@ res.status(200).send(operations)
 app.post("/operations", async (req, res) => {
   const {value, description, type} = req.body;
 
+  const { authorization } = req.headers;
+
+  const postOperation = { value: value, description: description, type: type };
+
+  const validation = operationSchema.validate(postOperation, { abortEarly: false });
+
+  if (validation.error) {
+      const errors = validation.error.details.map((detail) => detail.message);
+      return res.status(422).send(errors);
+  }
+
+  const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
+
+  if (!token) return res.status(401).send("nao tem autorizacao para acessar");
+
   try {
+
+    const sessao = await db.collection("sessions").findOne({ token });
+    if (!sessao) return res.status(401).send("Esse token n existe");
     
-    await db.collection("operations").insertOne({value: value, description: description, type: type, date: dayjs().format('DD/MM')})
+
+    await db.collection("operations").insertOne({value: value, description: description, type: type, date: dayjs().format('DD/MM'), idUser: sessao.idUser})
     res.status(201).send("Operação criada")
 
   } catch (err) {
