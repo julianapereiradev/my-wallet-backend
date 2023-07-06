@@ -39,7 +39,7 @@ const userSchema = joi.object({
 const operationSchema = joi.object({
   value: joi.number().required(),
   description: joi.string().required(),
-  type: joi.string().valid("entry", "exit").required(),
+  type: joi.string().valid("entrada", "saida").required(),
 });
 
 //Cadastro:
@@ -100,7 +100,7 @@ app.post("/user", async (req, res) => {
     if (bcrypt.compareSync(password, user.password)) {
       const token = uuid();
       await db.collection("sessions").insertOne({ idUser: user._id, token });
-      res.status(200).send(token);
+      res.status(200).send({name: user.name, userID: user._id, token});
     } else {
       res.status(401).send("Senha incorreta!");
     }
