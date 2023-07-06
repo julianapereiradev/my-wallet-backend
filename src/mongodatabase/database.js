@@ -5,12 +5,14 @@ import { MongoClient } from "mongodb";
 dotenv.config();
 
 const mongoClient = new MongoClient(process.env.DATABASE_URL);
+let db;
 
 try {
   await mongoClient.connect();
   console.log("MongoDB conectado!");
+  db = mongoClient.db();
 } catch (err) {
   (err) => console.log(err.message);
 }
 
-export const db = mongoClient.db();
+export default db;
