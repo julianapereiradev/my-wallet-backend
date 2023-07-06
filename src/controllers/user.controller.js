@@ -7,9 +7,9 @@ import { v4 as uuid } from "uuid";
 export async function signup (req, res) {
     const { name, email, password } = req.body;
   
-    const postParticipant = { name: name, email: email, password: password };
+    const postsignup = { name: name, email: email, password: password };
   
-    const validation = signupSchema.validate(postParticipant, {
+    const validation = signupSchema.validate(postsignup, {
       abortEarly: false,
     });
   
@@ -19,20 +19,20 @@ export async function signup (req, res) {
     }
   
     try {
-      const participantEmailExistsInParticipants = await db
-        .collection("participants")
+      const newEmailExistsInSignUpEmails = await db
+        .collection("users")
         .findOne({ email });
   
-      if (participantEmailExistsInParticipants) {
+      if (newEmailExistsInSignUpEmails) {
         return res.status(409).send("Este email já existe no banco");
       }
   
       const hash = bcrypt.hashSync(password, 10);
   
-      const newParticipant = { name: name, email: email, password: hash };
+      const newsignup = { name: name, email: email, password: hash };
   
-      await db.collection("participants").insertOne(newParticipant);
-      res.status(201).send("Participante cadastrado");
+      await db.collection("users").insertOne(newsignup);
+      res.status(201).send("Usuário cadastrado!");
     } catch (err) {
       return res.status(500).send(err.message);
     }
@@ -42,9 +42,9 @@ export async function signup (req, res) {
   export async function signin (req, res) {
     const { email, password } = req.body;
   
-    const postUser = { email: email, password: password };
+    const postsignin = { email: email, password: password };
   
-    const validation = signinSchema.validate(postUser, { abortEarly: false });
+    const validation = signinSchema.validate(postsignin, { abortEarly: false });
   
     if (validation.error) {
       const errors = validation.error.details.map((detail) => detail.message);
@@ -52,7 +52,7 @@ export async function signup (req, res) {
     }
   
     try {
-      const user = await db.collection("participants").findOne({ email });
+      const user = await db.collection("users").findOne({ email });
   
       if (!user) {
         return res.status(404).send("Este email não existe, crie uma conta");
