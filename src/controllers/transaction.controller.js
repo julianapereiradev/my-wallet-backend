@@ -1,17 +1,16 @@
 import { db } from "../mongodatabase/database.js";
-import { transactionSchema } from "../schemas/transaction.schemas.js";
 import dayjs from "dayjs";
 
 export async function gettransaction (req, res) {
     const { authorization } = req.headers;
   
     const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
-    if (!token) return res.status(401).send("nao tem autorizacao para acessar");
+    if (!token) return res.status(401).send("Você não tem autorizacao para acessar");
   
     try {
       const session = await db.collection("sessions").findOne({ token });
       if (!session)
-        return res.status(401).send("Nao encontrou token no banco de sessoes");
+        return res.status(401).send("Não foi encontrado o token no banco");
   
       const transactions = await db.collection("transactions").find({idUser: session.idUser}).toArray();
       res.status(200).send(transactions);
