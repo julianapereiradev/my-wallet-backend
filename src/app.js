@@ -5,6 +5,9 @@ import { MongoClient } from "mongodb";
 import joi from "joi";
 import { signin, signup } from "./controllers/user.controller.js";
 import { gettransaction, posttransaction } from "./controllers/transaction.controller.js";
+import userrouter from "./routes/user.routes.js";
+import transactionrouter from "./routes/transaction.routes.js";
+
 
 //Settings:
 const app = express();
@@ -14,6 +17,9 @@ app.use(express.json());
 dotenv.config();
 
 const mongoClient = new MongoClient(process.env.DATABASE_URL);
+
+app.use(userrouter)
+app.use(transactionrouter)
 
 try {
   await mongoClient.connect();
@@ -41,16 +47,16 @@ export const operationSchema = joi.object({
   type: joi.string().valid("entrada", "saida").required(),
 });
 
-//Cadastro:
-app.post("/participants", signup);
+// //Cadastro:
+// app.post("/participants", signup);
 
-//Login:
-app.post("/user", signin);
+// //Login:
+// app.post("/user", signin);
 
-//Operations:
-app.get("/operations", gettransaction);
+// //Operations:
+// app.get("/operations", gettransaction);
 
-app.post("/operations", posttransaction);
+// app.post("/operations", posttransaction);
 
 //PORT:
 const PORT = 5000;
