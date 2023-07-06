@@ -1,5 +1,5 @@
 import { db } from "../mongodatabase/database.js";
-import { signupSchema, signinSchema } from "../schemas/user.schemas.js";
+// import { signupSchema, signinSchema } from "../schemas/user.schemas.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
@@ -7,16 +7,16 @@ import { v4 as uuid } from "uuid";
 export async function signup (req, res) {
     const { name, email, password } = req.body;
   
-    const postsignup = { name: name, email: email, password: password };
+    // const postsignup = { name: name, email: email, password: password };
   
-    const validation = signupSchema.validate(postsignup, {
-      abortEarly: false,
-    });
+    // const validation = signupSchema.validate(postsignup, {
+    //   abortEarly: false,
+    // });
   
-    if (validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return res.status(422).send(errors);
-    }
+    // if (validation.error) {
+    //   const errors = validation.error.details.map((detail) => detail.message);
+    //   return res.status(422).send(errors);
+    // }
   
     try {
       const newEmailExistsInSignUpEmails = await db
@@ -42,14 +42,14 @@ export async function signup (req, res) {
   export async function signin (req, res) {
     const { email, password } = req.body;
   
-    const postsignin = { email: email, password: password };
+    // const postsignin = { email: email, password: password };
   
-    const validation = signinSchema.validate(postsignin, { abortEarly: false });
+    // const validation = signinSchema.validate(postsignin, { abortEarly: false });
   
-    if (validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return res.status(422).send(errors);
-    }
+    // if (validation.error) {
+    //   const errors = validation.error.details.map((detail) => detail.message);
+    //   return res.status(422).send(errors);
+    // }
   
     try {
       const user = await db.collection("users").findOne({ email });
