@@ -1,4 +1,4 @@
-import { db } from "../app.js";
+import { db } from "../mongodatabase/database.js";
 import { operationSchema } from "../schemas/transaction.schemas.js";
 import dayjs from "dayjs";
 
