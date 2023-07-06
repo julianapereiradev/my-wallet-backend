@@ -1,5 +1,5 @@
 import { db } from "../app.js";
-import { participantSchema, userSchema } from "../app.js";
+import { participantSchema, userSchema } from "../schemas/user.schemas.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
