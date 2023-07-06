@@ -1,5 +1,5 @@
 import { db } from "../mongodatabase/database.js";
-import { participantSchema, userSchema } from "../schemas/user.schemas.js";
+import { signupSchema, signinSchema } from "../schemas/user.schemas.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
@@ -9,7 +9,7 @@ export async function signup (req, res) {
   
     const postParticipant = { name: name, email: email, password: password };
   
-    const validation = participantSchema.validate(postParticipant, {
+    const validation = signupSchema.validate(postParticipant, {
       abortEarly: false,
     });
   
@@ -44,7 +44,7 @@ export async function signup (req, res) {
   
     const postUser = { email: email, password: password };
   
-    const validation = userSchema.validate(postUser, { abortEarly: false });
+    const validation = signinSchema.validate(postUser, { abortEarly: false });
   
     if (validation.error) {
       const errors = validation.error.details.map((detail) => detail.message);

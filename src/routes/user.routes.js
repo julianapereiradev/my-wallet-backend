@@ -3,7 +3,7 @@ import { signup, signin } from '../controllers/user.controller.js';
 
 const userrouter = Router();
 
-userrouter.post("/participants", signup);
-userrouter.post("/user", signin);
+userrouter.post("/signup", signup);
+userrouter.post("/signin", signin);
 
 export default userrouter

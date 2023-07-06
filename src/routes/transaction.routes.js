@@ -3,7 +3,7 @@ import { gettransaction, posttransaction } from '../controllers/transaction.cont
 
 const transactionrouter = Router();
 
-transactionrouter.get("/operations", gettransaction);
-transactionrouter.post("/operations", posttransaction);
+transactionrouter.get("/transaction", gettransaction);
+transactionrouter.post("/transaction", posttransaction);
 
 export default transactionrouter
