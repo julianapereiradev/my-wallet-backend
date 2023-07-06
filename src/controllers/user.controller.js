@@ -1,4 +1,4 @@
-import db from "../mongodatabase/database.js";
+import {db} from "../mongodatabase/database.js";
 // import { signupSchema, signinSchema } from "../schemas/user.schemas.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
