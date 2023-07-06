@@ -19,5 +19,5 @@ app.use(transactionrouter)
 //PORT:
 const PORT = 5000;
 app.listen(PORT, () =>
-  console.log(`O servidor está rodando na porta ${PORT}!`)
+  console.log(`O servidor está rodando na porta ${PORT}`)
 );

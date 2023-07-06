@@ -26,17 +26,6 @@ export async function posttransaction (req, res) {
   
     const { authorization } = req.headers;
   
-    const posttransaction = { value: value, description: description, type: type };
-  
-    const validation = transactionSchema.validate(posttransaction, {
-      abortEarly: false,
-    });
-  
-    if (validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return res.status(422).send(errors);
-    }
-  
     const token = authorization?.replace("Bearer ", ""); // ? significa optional chain
   
     if (!token) return res.status(401).send("Você não tem autorizacao para acessar");
