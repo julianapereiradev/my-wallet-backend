@@ -11,10 +11,4 @@ My Wallet é uma aplicação responsiva que simula uma carteira digital, permiti
 - **Joi**: Validação de dados.
 - **uuid**: Geração de identificadores únicos.
 
-### Frontend
-- **React**: Biblioteca JavaScript para interfaces.
-- **axios**: Cliente HTTP para chamadas à API.
-- **styled-components**: Estilização de componentes.
-- **react-router-dom**: Roteamento para aplicações React.
-
 Gerencie suas finanças com facilidade usando My Wallet!
