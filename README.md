@@ -16,7 +16,7 @@ O backend deste projeto foi arquitetado com as camadas de routers, controllers e
 ###### **CADASTRO => POST/signup:** 
 ```typescript
 {
-	name: string,
+    name: string,
     email: string,
     password: string,
 }
