@@ -1,4 +1,4 @@
-import { db } from "../database/database.js";
+/*import { db } from "../database/database.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
@@ -42,6 +42,31 @@ export async function postSignin(req, res) {
     } else {
       res.status(401).send("Senha incorreta!");
     }
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+}
+*/
+
+import * as userService from "../services/user.service.js";
+
+export async function postSignup(req, res) {
+  const { name, email, password } = req.body;
+
+  try {
+    await userService.signupService(name, email, password);
+    res.status(201).send("Usuário cadastrado!");
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+}
+
+export async function postSignin(req, res) {
+  const { email, password } = req.body;
+
+  try {
+    const result = await userService.signinService(email, password);
+    res.status(200).send(result);
   } catch (err) {
     return res.status(500).send(err.message);
   }
