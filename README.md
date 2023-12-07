@@ -8,7 +8,7 @@ O projeto **My Wallet** é uma aplicação responsiva que simula uma carteira di
 
 ## 2. Sobre
 ### 2.1 Arquitetura do Backend
-O backend deste projeto foi arquitetado com as camadas de routers, controllers e middlewares. Ele é composto por duas entidades principais: User e Transaction.
+O backend deste projeto foi arquitetado com as camadas de routers, controllers, services, repositories e middlewares. Ele é composto por duas entidades principais: User e Transaction.
 
 * ###### **User**: Contém rotas de POST para a funcionalidade de Cadastro e de Login.
 
